@@ -26,7 +26,7 @@ screen.fill(background_color)
 delayEnabled = True
 delayLength = 25
 
-
+# main method
 def main():
 	running = True
 	particle_count = 0

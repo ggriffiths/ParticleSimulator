@@ -11,10 +11,11 @@ import copy
 
 from pygame.locals import *
 
-
+# Enum for different directions
 class Dir:
 	UP, UR, R, DR, D, DL, L, UL, S = range(9)
 
+# Checks if a point is inside a circle
 def pointInsideRadius(radius,(oX,oY),(pX,pY)):
 	dX = math.fabs(oX - pX)
 	dY = math.fabs(oY - pY)
@@ -25,7 +26,7 @@ def pointInsideRadius(radius,(oX,oY),(pX,pY)):
 	else:
 		return False
 
-
+# removes particle in space through it's PID
 def removeById(space,id):
 	for p in range(len(space)):
 		try:
@@ -35,7 +36,7 @@ def removeById(space,id):
 			print p
 	return space
 
-
+# checks for collisions in space
 def handleCollisions(space):
 	for pi in space:
 		if pi.attackParticle != pi:
@@ -43,8 +44,17 @@ def handleCollisions(space):
 
 	return space
 
+
+# PARTICLE CLASS
+# --- x ............... position in space     
+# --- y ............... y position in space
+# --- size ............ how big the particle is (radius)
+# --- pid ............. particle ID
+# --- attackParticle .. when a collision occurs, a particles will battle. Attack particle keeps track of this
+# --- alive ........... if a particle is alive
 class Particle:
 
+	# finds distance between two particles
 	def distance(p1,p2):
 
 		dX = math.fabs(p1.x - p2.x) 
@@ -52,12 +62,15 @@ class Particle:
 		sq = math.sqrt(dX*dX + dY*dY)
 		return sq
 
+	# for string representation of particle
 	def __repr__(self):
 		return "p" + str(self.pid)
-
+	
+	# for string representation of particle
 	def __str__(self):
 		return "p" + str(self.pid)
 
+	# initializes a new particle on mouseclick
 	def __init__(self,newX,newY,space,particle_count):
 		self.x = newX
 		self.y = newY
@@ -65,12 +78,10 @@ class Particle:
 		self.pid = particle_count
 		self.attackParticle = self
 		particle_count+=1
-
 		self.alive = True
-
-
 		print "New Particle at (" + str(self.x) + "," + str(self.y) + ")"
 
+	# moves a particle in a certain direction
 	def move(self,direction):
 		# update particle info
 		if direction == Dir.UP:
@@ -104,6 +115,7 @@ class Particle:
 		elif direction == Dir.S:
 			pass
 
+	# checks if a particle has hit another
 	def hit(self,target):
 		if pointInsideRadius(self.size,(self.x,self.y),(target.x,target.y)):
 			return True
@@ -111,6 +123,7 @@ class Particle:
 			return False
 
 
+	# finds particle's best direction to it's target 
 	def bestDirection(self,target):
 		bestDir = Dir.UP
 		minDist = sys.maxint
@@ -125,7 +138,7 @@ class Particle:
 
 		return bestDir 
 
-
+	# find nearest particle to head towards
 	def findNearestParticle(self,space):
 		currentMinDist = sys.maxint
 		
@@ -142,7 +155,7 @@ class Particle:
 		else:
 			pass
 
-
+	# update particle position in space
 	def step(self,space):
 		# remove self from space for search purposes
 		spaceTemp = copy.deepcopy(space)	
@@ -165,15 +178,18 @@ class Particle:
 		# update particle info
 		self.move(direction)
 
+	# checks if self size is larger than target
 	def stronger(self,target):
 		if self.size>=target.size:
 			return True
 		else:
 			return False
 
+	# self consumes target size
 	def eat(self,target):
 		self.size+=target.size
 
+	# two particles fight in space, larger one wins.
 	def battle(self,target,space):
 		if self.stronger(target):
 			self.eat(target)
