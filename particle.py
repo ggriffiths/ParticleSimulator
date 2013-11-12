@@ -1,30 +1,25 @@
 # Author: Grant Griffiths
 # Date: 11/9/13
 import os
-import Tkinter
 import pygame	
 import re
-import random
 import math
 import sys
 import copy
-
+import particleSound
+import random
 from pygame.locals import *
+
+pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
+pygame.init()
+
+soundEnabled = False
+
 
 # Enum for different directions
 class Dir:
 	UP, UR, R, DR, D, DL, L, UL, S = range(9)
 
-# Checks if a point is inside a circle
-def pointInsideRadius(radius,(oX,oY),(pX,pY)):
-	dX = math.fabs(oX - pX)
-	dY = math.fabs(oY - pY)
-
-	if ((dX*dX) + (dY*dY)) <= radius*radius:
-		return True
-
-	else:
-		return False
 
 # removes particle in space through it's PID
 def removeById(space,id):
@@ -33,7 +28,8 @@ def removeById(space,id):
 			if space[p].pid == id:
 				space.remove(space[p])
 		except IndexError:
-			print p
+			pass
+
 	return space
 
 # checks for collisions in space
@@ -53,10 +49,19 @@ def handleCollisions(space):
 # --- attackParticle .. when a collision occurs, a particles will battle. Attack particle keeps track of this
 # --- alive ........... if a particle is alive
 class Particle:
+	# total number of particles
+	particle_count = 0
+
+
+	# Checks if a point is inside a circle
+	def particleCollision(self,tar):
+		if self.distance(tar) <= self.size + tar.size:
+			return True
+		else:
+			return False
 
 	# finds distance between two particles
 	def distance(p1,p2):
-
 		dX = math.fabs(p1.x - p2.x) 
 		dY = math.fabs(p1.y - p2.y)
 		sq = math.sqrt(dX*dX + dY*dY)
@@ -71,53 +76,55 @@ class Particle:
 		return "p" + str(self.pid)
 
 	# initializes a new particle on mouseclick
-	def __init__(self,newX,newY,space,particle_count):
-		self.x = newX
-		self.y = newY
+	def __init__(self,x,y,space):
+		Particle.particle_count+=1
+		self.x = x
+		self.y = y
 		self.size = 2
-		self.pid = particle_count
+		self.pid = Particle.particle_count
 		self.attackParticle = self
-		particle_count+=1
 		self.alive = True
+		self.speed = random.randrange(5)+1
+		print self
 		print "New Particle at (" + str(self.x) + "," + str(self.y) + ")"
 
 	# moves a particle in a certain direction
 	def move(self,direction):
 		# update particle info
 		if direction == Dir.UP:
-			self.y-=1
+			self.y-=self.speed
 
 		elif direction == Dir.UR:
-			self.x+=1
-			self.y-=1
+			self.x+=self.speed
+			self.y-=self.speed
 
 		elif direction == Dir.R:
-			self.x+=1
+			self.x+=self.speed
 
 		elif direction == Dir.DR:
-			self.x+=1
-			self.y+=1
+			self.x+=self.speed
+			self.y+=self.speed
 
 		elif direction == Dir.D:
-			self.y+=1
+			self.y+=self.speed
 
 		elif direction == Dir.DL:
-			self.x-=1
-			self.y+=1
+			self.x-=self.speed
+			self.y+=self.speed
 
 		elif direction == Dir.L:
-			self.x-=1
+			self.x-=self.speed
 
 		elif direction == Dir.UL:
-			self.x-=1
-			self.y-=1
+			self.x-=self.speed
+			self.y-=self.speed
 
 		elif direction == Dir.S:
 			pass
 
 	# checks if a particle has hit another
 	def hit(self,target):
-		if pointInsideRadius(self.size,(self.x,self.y),(target.x,target.y)):
+		if self.particleCollision(target):
 			return True
 		else:
 			return False
@@ -191,6 +198,7 @@ class Particle:
 
 	# two particles fight in space, larger one wins.
 	def battle(self,target,space):
+		if soundEnabled: sound.beep.play()
 		if self.stronger(target):
 			self.eat(target)
 			space  = removeById(space, target.pid)
