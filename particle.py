@@ -85,7 +85,6 @@ class Particle:
 		self.attackParticle = self
 		self.alive = True
 		self.speed = random.randrange(5)+1
-		print self
 		print "New Particle at (" + str(self.x) + "," + str(self.y) + ")"
 
 	# moves a particle in a certain direction

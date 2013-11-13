@@ -14,7 +14,8 @@ from pygame.locals import *
 class Generator:
 	totalTicks = 0
 
-	def __init__(self,x,y,ticks):
+	def __init__(self,x,y,ticks,creationTime):
+		self.creationTime = creationTime
 		self.x = x
 		self.y = y
 		self.ticksInCycle = ticks
@@ -24,7 +25,7 @@ class Generator:
 		space.append(p_temp)
 
 	def spawnCheck(self,space):
-		if self.totalTicks%self.ticksInCycle==0:
+		if (self.totalTicks-self.creationTime)%self.ticksInCycle==0:
 			self.spawn(space)
 
 	def show(self,screen):

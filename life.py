@@ -13,7 +13,7 @@ from pygame.locals import *
 
 
 # Screen Initialization
-pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
+pygame.mixer.pre_init(44100, -16, 2, 2048)
 pygame.init()
 screen_height = 600
 screen_width = 800
@@ -63,7 +63,7 @@ def main():
 		 				space.append(p_temp)
 		 		else:
 		 			pos = pygame.mouse.get_pos()
-		 			gen = generator.Generator(pos[0],pos[1],50)
+		 			gen = generator.Generator(pos[0],pos[1],50,generator.Generator.totalTicks)
 		 			generators.append(gen)
 
 
