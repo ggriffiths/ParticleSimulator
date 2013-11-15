@@ -1,7 +1,5 @@
 Features
 	Add networking functionality
-	Add documentation to generator.py
-	Add hostile/passive particle classes
 
 Bugs
 	Fix bug where battle() will sometimes increase particle size

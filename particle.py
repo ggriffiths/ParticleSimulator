@@ -75,18 +75,6 @@ class Particle:
 	def __str__(self):
 		return "p" + str(self.pid)
 
-	# initializes a new particle on mouseclick
-	def __init__(self,x,y,space):
-		Particle.particle_count+=1
-		self.x = x
-		self.y = y
-		self.size = 2
-		self.pid = Particle.particle_count
-		self.attackParticle = self
-		self.alive = True
-		self.speed = random.randrange(5)+1
-		print "New Particle at (" + str(self.x) + "," + str(self.y) + ")"
-
 	# moves a particle in a certain direction
 	def move(self,direction):
 		# update particle info
@@ -129,26 +117,15 @@ class Particle:
 			return False
 
 
-	# finds particle's best direction to it's target 
-	def bestDirection(self,target):
-		bestDir = Dir.UP
-		minDist = sys.maxint
-
-		for direction in range(8):
-			tempSelf = copy.deepcopy(self)
-			tempSelf.move(direction)
-			tempDist = Particle.distance(tempSelf,target)
-			if minDist > tempDist:
-				bestDir = direction
-				minDist = tempDist
-
-		return bestDir 
-
 	# find nearest particle to head towards
 	def findNearestParticle(self,space):
 		currentMinDist = sys.maxint
 		
+		# kill process if target already found
+		if self.attackParticle != self:
+			return self.attackParticle
 
+			
 		for p in space:
 			tempDist = Particle.distance(self,p)
 			if tempDist < currentMinDist:
@@ -184,6 +161,8 @@ class Particle:
 		# update particle info
 		self.move(direction)
 
+		
+
 	# checks if self size is larger than target
 	def stronger(self,target):
 		if self.size>=target.size:
@@ -202,11 +181,5 @@ class Particle:
 			self.eat(target)
 			space  = removeById(space, target.pid)
 			self.attackParticle = self
-
-		else:
-			target.eat(self)
-			space = removeById(space, self.pid)
-			target.attackParticle = target
-
 		return space
 

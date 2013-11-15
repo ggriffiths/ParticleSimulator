@@ -8,7 +8,9 @@ import sys
 import copy
 import particle
 import particleSound
+import hostile
 import generator
+import passive
 from pygame.locals import *
 
 
@@ -26,7 +28,7 @@ screen.fill(background_color)
 
 # params
 delayEnabled = True
-delayLength = 50
+delayLength = 25
 soundEnabled= False
 
 
@@ -37,6 +39,7 @@ def main():
 	space = []
 	generators = []
 	cycles = 0
+	pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
 
 	# run until exit 
 	while running:
@@ -45,8 +48,8 @@ def main():
 		for p in space:
 			if(len(space)>1):
 				p.step(space)
+			p.render(screen)
 			space = particle.handleCollisions(space)
-			pygame.draw.circle(screen,(255,255,255), (p.x,p.y), p.size, 0)
 
 	 	for event in pygame.event.get():
 	 		if event.type == pygame.QUIT:
@@ -55,7 +58,7 @@ def main():
 	 			if event.button == 1:
 		 			# Create particle at mouse position
 		 			pos = pygame.mouse.get_pos()
-		 			p_temp = particle.Particle(pos[0],pos[1],space)
+		 			p_temp = hostile.Hostile(pos[0],pos[1],space)
 		 			if soundEnabled: particleSound.ding.play() # play the jump sound effect once
 
 		 			# if possible to create particle at position, add to space
@@ -65,6 +68,9 @@ def main():
 		 			pos = pygame.mouse.get_pos()
 		 			gen = generator.Generator(pos[0],pos[1],50,generator.Generator.totalTicks)
 		 			generators.append(gen)
+
+		 	if event.type == pygame.KEYUP:
+		 		running=False
 
 
 
@@ -78,7 +84,7 @@ def main():
 
  		for gen in generators:
  			gen.spawnCheck(space)
- 			gen.show(screen)
+ 			gen.render(screen)
 
 
 main()
