@@ -2,7 +2,7 @@ Features
 	Add networking functionality
 
 Bugs
-	Fix bug where battle() will sometimes increase particle size
+	n/a
 
 Optimization:
 	Lower complexity of step() function. too cpu intensive with multiple particles.
